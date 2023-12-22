@@ -1,0 +1,15 @@
+{% extends 'quiz/base.html' %}
+{% block title %}Filling quiz{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<h1>Name: {{ quiz.title }}</h1>
+<p>Description: {{ quiz.description }}</p>
+<div>
+    <h1>Here will be a list of questions</h1>
+    {% for q in questions %}
+        <p>{{q.question_number}}. {{q.text}}</p>
+    {% endfor %}
+</div>
+<a href="{% url 'add_question' quiz_id number_of_question %}">Add a question</a>
+{% endblock %}

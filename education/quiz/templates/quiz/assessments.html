@@ -1,0 +1,62 @@
+{% extends 'quiz/base.html' %}
+{% block title %}List of assessments{% endblock %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% load static %}
+<br><br><br>
+
+    <select name="question_type" id="question_type">
+        <option value="">Choice a type of your question</option>
+        <option value="open">Open question</option>
+        <option value="close_one">Close question with one answer</option>
+        <option value="close_many">Close question with many answers</option>
+    </select>
+    <br><br><br>
+    <form method="POST" action="">
+        {% csrf_token %}
+        <div class="question_type" id="q_open">
+            <input type="hidden" value="open" name="question_type">
+            <p>Question:</p>
+            <input type="text" name="open_question" placeholder="Enter your question">
+            <br>
+            <p>Fill the answer options and choose the right of them</p>
+            <p>Answer:</p>
+            <input type="text" name="open_answer" placeholder="Enter the right answer">
+            <input type="submit" value="Submit">
+        </div>
+    </form>
+
+    <form method="POST" action="">
+        {% csrf_token %}
+        <div class="question_type" id="q_close_one">
+            <input type="hidden" value="close_one" name="question_type">
+            <p>Question:</p>
+            <input type="text" name="close_one_question" placeholder="Enter your question">
+            <br>
+            <p>Answer:</p>
+            <div id="answers_to_close_one"></div>
+            <input type="button" value="Add answer option" id="addButton_one_answer">
+            <input type="submit" value="Submit">
+        </div>
+    </form>
+
+    <form method="POST" action="">
+        {% csrf_token %}
+        <div class="question_type" id="q_close_many">
+            <input type="hidden" value="close_many" name="question_type">
+            <p>Question:</p>
+            <input type="text" name="close_many_question" placeholder="Enter your question">
+            <br>
+            <p>Answers:</p>
+            <div id="answers_to_close_many"></div>
+            <input type="button" value="Add answer option" id="addButton_many_answers">
+            <input type="submit" value="Submit">
+        </div>
+    </form>
+
+<!--Show chosen type of the question and hide others-->
+<script src="{% static 'quiz/js/show_hide_question.js' %}"></script>
+
+<!--Create and show answer option-->
+<script src="{% static 'quiz/js/create_answer_option.js' %}"></script>
+{% endblock %}

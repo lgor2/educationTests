@@ -1,0 +1,12 @@
+.answer_option_label {
+    display: block;
+    margin: 5px 0px 5px 0px;
+}
+
+.answer_option_label > input[type=text]{
+    margin: 10px;
+}
+
+.question_type {
+    display: none;
+}
