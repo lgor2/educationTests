@@ -1,0 +1,18 @@
+{% extends 'quiz/base.html' %}
+{% block title %}Quiz - {{quiz_object.title}}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Questions of the test "{{quiz_object.title}}":</h2>
+  <br>
+  <ul class="list-group">
+      {% if questions %}
+    {% for question in questions %}
+      <li class="list-group-item"><a href="#">{{question.text}}</a></li>
+    {% endfor %}
+      {% else %}
+      <h1>There's no question</h1>
+      {% endif %}
+  </ul>
+</div>
+{% endblock %}

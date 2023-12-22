@@ -7,6 +7,7 @@ from .models import Quiz, Question, TypeOfQuestion, Answer
 from django.forms import formset_factory
 from django.http import JsonResponse
 from django.db.models import Max, Exists
+from django.shortcuts import get_object_or_404
 
 
 def get_group_for_registration(req):
@@ -245,3 +246,14 @@ def my_quizzes(request):
     }
     context.update(get_group(request))
     return render(request, 'quiz/list_of_quizzes.html', context=context)
+
+
+def quiz(request, quiz_id):
+    quiz_object = get_object_or_404(Quiz, id=quiz_id)
+    questions = Question.objects.filter(related_quiz=quiz_object)
+    context = {
+        'quiz_object': quiz_object,
+        'questions': questions,
+    }
+    context.update(get_group(request))
+    return render(request, 'quiz/quiz_object.html', context=context)
