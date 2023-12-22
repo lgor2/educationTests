@@ -67,9 +67,10 @@ def create_quiz(request):
     if request.method == 'POST':
         form = CreateQuizForm(request.POST)
         if form.is_valid():
+            form.cleaned_data['author'] = request.user
+
             # save to the database and extract quiz_id
             quiz = form.save()
-
             quiz_id = quiz.id
             return redirect(f'/quiz_filling/{quiz_id}')
     else:
@@ -236,9 +237,11 @@ def add_question(request, quiz_id, number_of_question):
     return render(request, 'quiz/assessments.html', context=context)
 
 
-@login_required('/login')
-def list_of_quizzes(request):
-
-    context = {}
+# @login_required('login/')
+def my_quizzes(request):
+    quizzes = Quiz.objects.filter(author=request.user)
+    context = {
+        'quizzes': quizzes,
+    }
     context.update(get_group(request))
     return render(request, 'quiz/list_of_quizzes.html', context=context)
