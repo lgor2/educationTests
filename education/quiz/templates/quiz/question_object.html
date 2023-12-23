@@ -1,0 +1,22 @@
+{% extends 'quiz/base.html' %}
+{% block title %}Question - ""{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">{{question.text}}</h5>
+        </div>
+        <div class="card-body">
+            {% for option in options %}
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="{{answer_number}}" {% if option.is_answer_right %}checked{% endif %} disabled>
+                <label class="form-check-label" for="{{answer_number}}">
+                    {{option.text_of_answer}}
+                </label>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

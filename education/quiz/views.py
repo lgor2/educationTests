@@ -257,3 +257,15 @@ def quiz(request, quiz_id):
     }
     context.update(get_group(request))
     return render(request, 'quiz/quiz_object.html', context=context)
+
+
+def question(request, quiz_id, question_id):
+    question = get_object_or_404(Question, id=question_id)
+    options = Answer.objects.filter(related_question__id=question_id)
+
+    context = {
+        'question': question,
+        'options': options,
+    }
+    context.update(get_group(request))
+    return render(request, 'quiz/question_object.html', context=context)
