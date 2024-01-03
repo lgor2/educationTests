@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .forms import RegisterForm, CreateQuizForm, AnswerForm, MyDynamicForm
 from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group, User, Permission
 from django.contrib.auth.decorators import login_required, permission_required
 from .models import Quiz, Question, TypeOfQuestion, Answer
 from django.forms import formset_factory
@@ -13,9 +13,34 @@ from django.shortcuts import get_object_or_404
 def get_group_for_registration(req):
     if req.POST['role'] == 'S':
         group, created = Group.objects.get_or_create(name='student_group')
+        if created:
+            # Add permissions to teacher_group
+            permissions = [
+                'view_answer',
+                'view_question',
+                'view_quiz',
+            ]
+            group.permissions.add(*permissions)
         return group
     elif req.POST['role'] == 'T':
         group, created = Group.objects.get_or_create(name='teacher_group')
+        if created:
+            # Add permissions to student_group
+            permissions = [
+                'add_answer',
+                'change_answer',
+                'delete_answer',
+                'view_answer',
+                'add_question',
+                'change_question',
+                'delete_question',
+                'view_question',
+                'add_quiz',
+                'change_quiz',
+                'delete_quiz',
+                'view_quiz',
+            ]
+            group.permissions.add(*permissions)
         return group
 
 
@@ -63,7 +88,7 @@ def sign_up(request):
 
 
 @login_required(login_url='login/')
-# @permission_required()
+# @permission_required(perm='add_quiz', raise_exception=True)
 def create_quiz(request):
     if request.method == 'POST':
         form = CreateQuizForm(request.POST)
@@ -87,6 +112,16 @@ def create_quiz(request):
 
 
 def kakayata_ajax(request):
+    print('--------------permissions---------')
+    permissions = Permission.objects.all()
+    for perm in permissions:
+        print(perm.codename)
+    print('--------------groups---------')
+    groups = Group.objects.all()
+    for group in groups:
+        print(group)
+    print('--------------groups---------')
+
     is_ajax = request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
     if is_ajax and request.method == 'POST':
 
@@ -238,7 +273,6 @@ def add_question(request, quiz_id, number_of_question):
     return render(request, 'quiz/assessments.html', context=context)
 
 
-# @login_required('login/')
 def my_quizzes(request):
     quizzes = Quiz.objects.filter(author=request.user)
     context = {
@@ -260,11 +294,11 @@ def quiz(request, quiz_id):
 
 
 def question(request, quiz_id, question_id):
-    question = get_object_or_404(Question, id=question_id)
+    question_object = get_object_or_404(Question, id=question_id)
     options = Answer.objects.filter(related_question__id=question_id)
 
     context = {
-        'question': question,
+        'question': question_object,
         'options': options,
     }
     context.update(get_group(request))
