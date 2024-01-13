@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from .models import Quiz, Question, TypeOfQuestion, Answer
 from django.forms import formset_factory
 from django.http import JsonResponse
-from django.db.models import Max, Exists
+from django.db.models import Max, Exists, Q
 from django.shortcuts import get_object_or_404
 
 
@@ -303,3 +303,18 @@ def question(request, quiz_id, question_id):
     }
     context.update(get_group(request))
     return render(request, 'quiz/question_object.html', context=context)
+
+
+def filtered_quizzes(request):
+    if request.method == 'POST':
+        search_query = request.POST.get('search_query', '')
+        quizzes = Quiz.objects.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
+    else:
+        quizzes = Quiz.objects.all()
+
+
+    context = {
+        'quizzes': quizzes,
+    }
+    context.update(get_group(request))
+    return render(request, 'quiz/filtered_quizzes.html', context=context)

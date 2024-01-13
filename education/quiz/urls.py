@@ -12,5 +12,6 @@ urlpatterns = [
     path('my_quizzes', views.my_quizzes, name='my_quizzes'),
     path('quiz/<int:quiz_id>', views.quiz, name='quiz'),
     path('quiz/<int:quiz_id>/question/<int:question_id>', views.question, name='question'),
+    path('filtered_quizzes', views.filtered_quizzes, name='filtered_quizzes'),
     path('kakayata_ajax', views.kakayata_ajax, name='kakayata_ajax'),
 ]
