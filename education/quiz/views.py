@@ -14,7 +14,7 @@ def get_group_for_registration(req):
     if req.POST['role'] == 'S':
         group, created = Group.objects.get_or_create(name='student_group')
         if created:
-            # Add permissions to teacher_group
+            # Add permissions to student_group
             permissions = [
                 'view_answer',
                 'view_question',
@@ -25,7 +25,7 @@ def get_group_for_registration(req):
     elif req.POST['role'] == 'T':
         group, created = Group.objects.get_or_create(name='teacher_group')
         if created:
-            # Add permissions to student_group
+            # Add permissions to teacher_group
             permissions = [
                 'add_answer',
                 'change_answer',
@@ -284,13 +284,20 @@ def my_quizzes(request):
 
 def quiz(request, quiz_id):
     quiz_object = get_object_or_404(Quiz, id=quiz_id)
-    questions = Question.objects.filter(related_quiz=quiz_object)
-    context = {
-        'quiz_object': quiz_object,
-        'questions': questions,
-    }
-    context.update(get_group(request))
-    return render(request, 'quiz/quiz_object.html', context=context)
+    if request.user.groups.filter(name='student_group').exists():
+        context = {
+            'quiz_object': quiz_object,
+        }
+        context.update(get_group(request))
+        return render(request, 'quiz/quiz_object_for_student.html', context=context)
+    elif request.user.groups.filter(name='teacher_group').exists():
+        questions = Question.objects.filter(related_quiz=quiz_object)
+        context = {
+            'quiz_object': quiz_object,
+            'questions': questions,
+        }
+        context.update(get_group(request))
+        return render(request, 'quiz/quiz_object.html', context=context)
 
 
 def question(request, quiz_id, question_id):
@@ -308,10 +315,12 @@ def question(request, quiz_id, question_id):
 def filtered_quizzes(request):
     if request.method == 'POST':
         search_query = request.POST.get('search_query', '')
-        quizzes = Quiz.objects.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
+        quizzes = Quiz.objects.filter(
+            Q(title__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(author__username__icontains=search_query))
     else:
         quizzes = Quiz.objects.all()
-
 
     context = {
         'quizzes': quizzes,
