@@ -8,7 +8,7 @@
   <ol class="list-group">
       {% if questions %}
     {% for question in questions %}
-      <li class="list-group-item"><a href="{{quiz_object.id}}/question/{{question.id}}">{{question.text}}</a></li>
+      <li class="list-group-item"><a href="{{quiz_object.id}}/question/{{question.question_number}}">{{question.text}}</a></li>
     {% endfor %}
       {% else %}
       <h1>There's no question</h1>

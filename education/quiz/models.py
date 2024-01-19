@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 
 class Quiz(models.Model):
@@ -10,6 +11,9 @@ class Quiz(models.Model):
     def __str__(self):
         return self.title
 
+    def get_id_question(self, num):
+        obj = Question.objects.filter(Q(related_quiz=self), Q(question_number=num))[0]
+        return obj.id
 
 class TypeOfQuestion(models.Model):
     question_type_name = models.CharField(max_length=500)

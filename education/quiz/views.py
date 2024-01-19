@@ -300,9 +300,12 @@ def quiz(request, quiz_id):
         return render(request, 'quiz/quiz_object.html', context=context)
 
 
-def question(request, quiz_id, question_id):
-    question_object = get_object_or_404(Question, id=question_id)
-    options = Answer.objects.filter(related_question__id=question_id)
+def question(request, quiz_id, question_num):
+    question_object = get_object_or_404(
+        Question,
+        question_number=question_num,
+        related_quiz__id=quiz_id)
+    options = Answer.objects.filter(related_question=question_object)
 
     context = {
         'question': question_object,
@@ -327,3 +330,12 @@ def filtered_quizzes(request):
     }
     context.update(get_group(request))
     return render(request, 'quiz/filtered_quizzes.html', context=context)
+
+
+def student_answer(request, quiz_id, question_id):
+    if request.method == 'POST':
+        pass
+    elif request.method == 'GET':
+        context = {}
+        context.update(get_group(request))
+        return render(request, 'quiz/student_answer.html', context=context)
