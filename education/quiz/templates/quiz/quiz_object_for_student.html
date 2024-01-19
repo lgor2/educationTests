@@ -1,5 +1,5 @@
 {% extends 'quiz/base.html' %}
-{% block title %}???{% endblock %}
+{% block title %}Quiz - {{quiz_object.title}}{% endblock %}
 
 {%block content%}
 <div class="container mt-5">
@@ -10,7 +10,7 @@
             <p class="text-center">Teacher: {{ quiz_object.author.username }}</p>
             <div class="d-grid gap-2">
                 <a href="/filtered_quizzes" class="btn btn-secondary btn-block">Back</a>
-                <a href="your_other_page.html" class="btn btn-success btn-block">Start</a>
+                <a href="/quiz_taking/{{quiz_object.id}}/question/1" class="btn btn-success btn-block">Start</a>
             </div>
         </div>
     </div>

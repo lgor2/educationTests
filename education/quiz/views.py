@@ -332,10 +332,32 @@ def filtered_quizzes(request):
     return render(request, 'quiz/filtered_quizzes.html', context=context)
 
 
-def student_answer(request, quiz_id, question_id):
+def student_answer(request, quiz_id, question_num):
     if request.method == 'POST':
+        # do some logic
         pass
-    elif request.method == 'GET':
-        context = {}
-        context.update(get_group(request))
-        return render(request, 'quiz/student_answer.html', context=context)
+
+    quiz_object = get_object_or_404(Quiz, id=quiz_id)
+    question_object = get_object_or_404(
+        Question,
+        related_quiz=quiz_object,
+        question_number=question_num
+    )
+    answer_options = Answer.objects.filter(related_question=question_object)
+
+    count_of_questions_in_the_quiz = Question.objects.filter(related_quiz=quiz_object).count()
+
+    if question_object.question_number == count_of_questions_in_the_quiz:
+        form_action = f'quiz_result/{quiz_id}'
+    else:
+        form_action = f'quiz_taking/{quiz_id}/question/{question_num+1}'
+
+    context = {
+        'quiz': quiz_object,
+        'question': question_object,
+        'answer_options': answer_options,
+        'question_type': question_object.question_type.question_type_name,
+        'form_action': form_action,
+    }
+    context.update(get_group(request))
+    return render(request, 'quiz/student_answer.html', context=context)
