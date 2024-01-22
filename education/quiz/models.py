@@ -46,3 +46,12 @@ class Answer(models.Model):
 
     def __str__(self):
         return str((self.answer_number, self.is_answer_right, self.text_of_answer))
+
+
+class Score(models.Model):
+    related_quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    related_student = models.ForeignKey(User, on_delete=models.CASCADE)
+    score_counter = models.IntegerField(verbose_name='User rating for the quiz', default=0)
+
+    def __str__(self):
+        return str(self.score_counter)
