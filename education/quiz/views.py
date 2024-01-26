@@ -369,3 +369,20 @@ def student_answer(request, quiz_id, question_num):
     }
     context.update(get_group(request))
     return render(request, 'quiz/student_answer.html', context=context)
+
+
+def quiz_result(request, quiz_id):
+    user = request.user
+    quiz_object = Quiz.objects.get(id=quiz_id)
+    total_questions_in_quiz = Question.objects.filter(related_quiz=quiz_object).count()
+    score_result = Score.objects.get(
+        related_quiz=quiz_object,
+        related_student=user
+    )
+
+    context = {
+        'total_questions': total_questions_in_quiz,
+        'score_result': score_result,
+    }
+    context.update(get_group(request))
+    return render(request, 'quiz/quiz_result.html', context=context)
