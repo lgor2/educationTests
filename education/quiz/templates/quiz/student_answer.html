@@ -11,19 +11,19 @@
         </div>
         <div class="mb-3">
             {% if question_type == 'open' %}
-                <input type="text" placeholder="Write your answer here...">
+                <input type="text" name="choice" placeholder="Write your answer here...">
             {% elif question_type == "close_one" %}
                 {% for option in answer_options %}
                     <label class="d-block">
-                        <input name="close_one_checkbox_answer" type="radio">
-                        <p class="d-inline">{{ option.text_of_answer }}</p>
+                        <input name="choice_{{ option.id }}" type="radio" value="{{ option.text_of_answer }}">
+                        <span class="d-inline">{{ option.text_of_answer }}</span>
                     </label>
                 {% endfor %}
             {% elif question_type == "close_many" %}
                 {% for option in answer_options %}
                     <label class="d-block">
-                        <input name="close_one_checkbox_answer" type="checkbox">
-                        <p class="d-inline">{{ option.text_of_answer }}</p>
+                        <input name="choice_{{ option.id }}" type="checkbox" value="{{ option.text_of_answer }}">
+                        <span class="d-inline">{{ option.text_of_answer }}</span>
                     </label>
                 {% endfor %}
             {% endif %}

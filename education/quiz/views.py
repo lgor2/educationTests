@@ -3,7 +3,7 @@ from .forms import RegisterForm, CreateQuizForm, AnswerForm, MyDynamicForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import Group, User, Permission
 from django.contrib.auth.decorators import login_required, permission_required
-from .models import Quiz, Question, TypeOfQuestion, Answer
+from .models import Quiz, Question, TypeOfQuestion, Answer, Score
 from django.forms import formset_factory
 from django.http import JsonResponse
 from django.db.models import Max, Exists, Q
@@ -333,10 +333,6 @@ def filtered_quizzes(request):
 
 
 def student_answer(request, quiz_id, question_num):
-    if request.method == 'POST':
-        # do some logic
-        pass
-
     quiz_object = get_object_or_404(Quiz, id=quiz_id)
     question_object = get_object_or_404(
         Question,
@@ -344,14 +340,26 @@ def student_answer(request, quiz_id, question_num):
         question_number=question_num
     )
     answer_options = Answer.objects.filter(related_question=question_object)
-
     count_of_questions_in_the_quiz = Question.objects.filter(related_quiz=quiz_object).count()
 
-    if question_object.question_number == count_of_questions_in_the_quiz:
-        form_action = f'quiz_result/{quiz_id}'
-    else:
-        form_action = f'quiz_taking/{quiz_id}/question/{question_num+1}'
+    if request.method == 'POST':
+        user_score_of_the_quiz, created = Score.objects.get_or_create(
+            related_quiz=quiz_object,
+            related_student=request.user
+        )
+        question_type = question_object.question_type.question_type_name
+        checked_answers = [request.POST[option] for option in request.POST if 'choice' in option]
+        correct_answers = [answer.text_of_answer for answer in answer_options if answer.is_answer_right]
 
+        if sorted(checked_answers) == sorted(correct_answers):
+            user_score_of_the_quiz.add_score(1)
+            user_score_of_the_quiz.save()
+            if question_object.question_number == count_of_questions_in_the_quiz:
+                return redirect(f'/quiz_result/{quiz_id}')
+            else:
+                return redirect(f'/quiz_taking/{quiz_id}/question/{question_num + 1}')
+
+    form_action = f'quiz_taking/{quiz_id}/question/{question_num}'
     context = {
         'quiz': quiz_object,
         'question': question_object,

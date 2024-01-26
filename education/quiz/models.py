@@ -53,5 +53,8 @@ class Score(models.Model):
     related_student = models.ForeignKey(User, on_delete=models.CASCADE)
     score_counter = models.IntegerField(verbose_name='User rating for the quiz', default=0)
 
+    def add_score(self, number_of_points=1):
+        self.score_counter += number_of_points
+
     def __str__(self):
         return str(self.score_counter)
