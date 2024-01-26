@@ -354,10 +354,10 @@ def student_answer(request, quiz_id, question_num):
         if sorted(checked_answers) == sorted(correct_answers):
             user_score_of_the_quiz.add_score(1)
             user_score_of_the_quiz.save()
-            if question_object.question_number == count_of_questions_in_the_quiz:
-                return redirect(f'/quiz_result/{quiz_id}')
-            else:
-                return redirect(f'/quiz_taking/{quiz_id}/question/{question_num + 1}')
+        if question_object.question_number == count_of_questions_in_the_quiz:
+            return redirect(f'/quiz_result/{quiz_id}')
+        else:
+            return redirect(f'/quiz_taking/{quiz_id}/question/{question_num + 1}')
 
     form_action = f'quiz_taking/{quiz_id}/question/{question_num}'
     context = {
