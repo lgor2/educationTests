@@ -285,6 +285,13 @@ def my_quizzes(request):
 def quiz(request, quiz_id):
     quiz_object = get_object_or_404(Quiz, id=quiz_id)
     if request.user.groups.filter(name='student_group').exists():
+        student_already_taken_the_test = Score.objects.filter(
+            related_quiz=quiz_object,
+            related_student=request.user
+        ).exists()
+        if student_already_taken_the_test:
+            return redirect(f'/quiz_result/{quiz_id}')
+
         context = {
             'quiz_object': quiz_object,
         }
