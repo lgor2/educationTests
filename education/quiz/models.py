@@ -1,12 +1,18 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth import get_user_model
 from django.db.models import Q
+
+
+class CustomUser(AbstractUser):
+    def get_quizzes_for_user(self):
+        return Quiz.objects.filter(score__related_student=self)
 
 
 class Quiz(models.Model):
     title = models.CharField(max_length=700)
     description = models.CharField(max_length=2000)
-    author = models.ForeignKey(User, on_delete=models.CASCADE, default=0)
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, default=0)
 
     def __str__(self):
         return self.title
@@ -14,6 +20,7 @@ class Quiz(models.Model):
     def get_id_question(self, num):
         obj = Question.objects.filter(Q(related_quiz=self), Q(question_number=num))[0]
         return obj.id
+
 
 class TypeOfQuestion(models.Model):
     question_type_name = models.CharField(max_length=500)
@@ -50,7 +57,7 @@ class Answer(models.Model):
 
 class Score(models.Model):
     related_quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
-    related_student = models.ForeignKey(User, on_delete=models.CASCADE)
+    related_student = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     score_counter = models.IntegerField(verbose_name='User rating for the quiz', default=0)
 
     def add_score(self, number_of_points=1):
