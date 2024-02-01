@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .forms import RegisterForm, CreateQuizForm, AnswerForm, MyDynamicForm
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.models import Group, User, Permission
 from django.contrib.auth.decorators import login_required, permission_required
 from .models import Quiz, Question, TypeOfQuestion, Answer, Score
@@ -393,3 +393,12 @@ def quiz_result(request, quiz_id):
     }
     context.update(get_group(request))
     return render(request, 'quiz/quiz_result.html', context=context)
+
+
+def completed_quizzes(request):
+    quizzes = Quiz.get_quizzes_for_user(request.user)
+    context = {
+        'quizzes': quizzes,
+    }
+    context.update(get_group(request))
+    return render(request, 'quiz/completed_quizzes.html', context=context)
