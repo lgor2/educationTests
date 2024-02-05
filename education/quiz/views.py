@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .forms import RegisterForm, CreateQuizForm, AnswerForm, MyDynamicForm
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.models import Group, User, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required, permission_required
 from .models import Quiz, Question, TypeOfQuestion, Answer, Score
 from django.forms import formset_factory
@@ -11,6 +12,14 @@ from django.shortcuts import get_object_or_404
 
 
 def get_group_for_registration(req):
+    def create_group_with_permissions(group, permissions_list):
+        for permission_code in permissions_list:
+            action, model = permission_code.split('_')
+            content_type = ContentType.objects.get(app_label='quiz', model=model)
+
+            permission = Permission.objects.get(content_type=content_type, codename=permission_code)
+            group.permissions.add(permission)
+
     if req.POST['role'] == 'S':
         group, created = Group.objects.get_or_create(name='student_group')
         if created:
@@ -20,7 +29,7 @@ def get_group_for_registration(req):
                 'view_question',
                 'view_quiz',
             ]
-            group.permissions.add(*permissions)
+            create_group_with_permissions(group, permissions)
         return group
     elif req.POST['role'] == 'T':
         group, created = Group.objects.get_or_create(name='teacher_group')
@@ -40,7 +49,7 @@ def get_group_for_registration(req):
                 'delete_quiz',
                 'view_quiz',
             ]
-            group.permissions.add(*permissions)
+            create_group_with_permissions(group, permissions)
         return group
 
 
