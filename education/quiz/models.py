@@ -13,6 +13,7 @@ class Quiz(models.Model):
     title = models.CharField(max_length=700)
     description = models.CharField(max_length=2000)
     author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, default=0)
+    question_count = models.IntegerField(verbose_name='Number of questions', default=0)
 
     def __str__(self):
         return self.title
