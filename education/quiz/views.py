@@ -405,9 +405,11 @@ def quiz_result(request, quiz_id):
 
 
 def completed_quizzes(request):
-    quizzes = Quiz.get_quizzes_for_user(request.user)
+    results = (Score.objects.filter(related_student=request.user)
+               .select_related('related_quiz'))
+
     context = {
-        'quizzes': quizzes,
+        'results': results,
     }
     context.update(get_group(request))
     return render(request, 'quiz/completed_quizzes.html', context=context)

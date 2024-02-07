@@ -7,12 +7,12 @@
     <h1>List of quizzes you have passed</h1>
 
     <ul class="list-group">
-        {% if quizzes %}
-            {% for quiz in quizzes %}
+        {% if results %}
+            {% for result in results %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="quiz/{{ quiz.id }}">{{ quiz.title }}</a>
-                    <span class="ml-auto">Score: {{quiz_score.score_counter}}/{{total_questions}}</span>
-                    <span class="ml-auto">Author: {{ quiz.author.username }}</span>
+                    <a href="quiz/{{ result.related_quiz.id }}">{{ result.related_quiz.title }}</a>
+                    <span class="ml-auto">Score: {{result.score_counter}}/{{result.related_quiz.question_count}}</span>
+                    <span class="ml-auto">Author: {{ result.related_quiz.author.username }}</span>
                 </li>
             {% endfor %}
         {% else %}
