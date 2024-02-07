@@ -11,27 +11,4 @@
 </form>
 {% csrf_token %}
 <br><br><br><br><br><br><br><br><br><br><br><br>
-<button id="load-data">AJAX</button>
-<div id="data-container">123</div>
 {% endblock %}
-
-{% block javascript %}
-
-<!--Test usage of ajax-->
-<script>
-    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    $(document).ready(function() {
-            $('#load-data').click(function() {
-                $.ajax({
-                    type: 'POST',
-                    url: '/kakayata_ajax',
-                    headers: {'X-CSRFToken': csrftoken},
-                    success: function(response) {
-                        let data = response
-                        $('#data-container').text(data);
-                    }
-                });
-            });
-        });
-</script>
-{% endblock javascript %}

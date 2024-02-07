@@ -120,28 +120,6 @@ def create_quiz(request):
     return render(request, 'quiz/create_quiz.html', context=context)
 
 
-def kakayata_ajax(request):
-    print('--------------permissions---------')
-    permissions = Permission.objects.all()
-    for perm in permissions:
-        print(perm.codename)
-    print('--------------groups---------')
-    groups = Group.objects.all()
-    for group in groups:
-        print(group)
-    print('--------------groups---------')
-
-    is_ajax = request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
-    if is_ajax and request.method == 'POST':
-
-        # data = {'1': 'Hello world'}
-        # return JsonResponse(data, status=200)
-
-        context = {'text': 'Hello, world!'}
-
-        return render(request, 'quiz/testajax.html', context=context)
-
-
 @login_required(login_url='login/')
 def quiz_filling(request, quiz_id):
     quiz = Quiz.objects.get(id=quiz_id)
