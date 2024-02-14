@@ -1,0 +1,24 @@
+{% extends 'quiz/base.html' %}
+{% block title %}Results{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h1>List of quizzes students have passed</h1>
+
+    <ul class="list-group">
+        {% if results %}
+            {% for result in results %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="quiz/{{ result.related_quiz.id }}">{{ result.related_quiz.title }}</a>
+                    <span class="ml-auto">Score: {{result.score_counter}}/{{result.related_quiz.question_count}}</span>
+                    <span class="ml-auto">Student: {{ result.related_student.username }}</span>
+                </li>
+            {% endfor %}
+        {% else %}
+            <h1>There's no quizzes</h1>
+        {% endif %}
+    </ul>
+
+</div>
+{% endblock %}

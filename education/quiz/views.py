@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required, permission_required
 from .models import Quiz, Question, TypeOfQuestion, Answer, Score
 from django.forms import formset_factory
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseNotFound
 from django.db.models import Max, Exists, Q
 from django.shortcuts import get_object_or_404
 
@@ -383,11 +383,21 @@ def quiz_result(request, quiz_id):
 
 
 def completed_quizzes(request):
-    results = (Score.objects.filter(related_student=request.user)
-               .select_related('related_quiz'))
+    if request.user.groups.filter(name='student_group').exists():
+        results = (Score.objects.filter(related_student=request.user)
+                   .select_related('related_quiz'))
+        context = {
+            'results': results,
+        }
+        context.update(get_group(request))
+        return render(request, 'quiz/completed_quizzes.html', context=context)
 
-    context = {
-        'results': results,
-    }
-    context.update(get_group(request))
-    return render(request, 'quiz/completed_quizzes.html', context=context)
+    elif request.user.groups.filter(name='teacher_group').exists():
+        results = (Score.objects.
+                   select_related('related_quiz').
+                   filter(related_quiz__author=request.user))
+        context = {
+            'results': results,
+        }
+        context.update(get_group(request))
+        return render(request, 'quiz/list_of_completed_quizzes_for_teacher.html', context=context)
