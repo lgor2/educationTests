@@ -22,3 +22,5 @@ urlpatterns = [
     path('', include('quiz.urls')),
     path('', include('django.contrib.auth.urls')),
 ]
+
+handler404 = 'quiz.views.handler404'

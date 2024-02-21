@@ -9,7 +9,7 @@ from django.forms import formset_factory
 from django.http import JsonResponse, HttpResponseNotFound
 from django.db.models import Max, Exists, Q
 from django.shortcuts import get_object_or_404
-
+import django.views.defaults
 
 def get_group_for_registration(req):
     def create_group_with_permissions(group, permissions_list):
@@ -401,3 +401,9 @@ def completed_quizzes(request):
         }
         context.update(get_group(request))
         return render(request, 'quiz/list_of_completed_quizzes_for_teacher.html', context=context)
+
+
+def handler404(request, exception):
+    context = {}
+    context.update(get_group(request))
+    return render(request, 'quiz/404.html', context=context, status=404)
