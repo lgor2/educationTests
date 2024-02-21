@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse
+
 from .forms import RegisterForm, CreateQuizForm, AnswerForm, MyDynamicForm
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.models import Group, User, Permission
@@ -104,10 +106,11 @@ def create_quiz(request):
         if form.is_valid():
             form.cleaned_data['author'] = request.user
 
-            # save to the database and extract quiz_id
+            # save to the database
             quiz = form.save()
-            quiz_id = quiz.id
-            return redirect(f'/quiz_filling/{quiz_id}')
+
+            uri = reverse('quiz_filling', args=(quiz.id,))
+            return redirect(uri)
     else:
         form = CreateQuizForm()
     context = {
@@ -277,7 +280,8 @@ def quiz(request, quiz_id):
             related_student=request.user
         ).exists()
         if student_already_taken_the_test:
-            return redirect(f'/quiz_result/{quiz_id}')
+            uri = reverse('quiz_result', args=(quiz_id,))
+            return redirect(uri)
 
         context = {
             'quiz_object': quiz_object,
@@ -349,11 +353,14 @@ def student_answer(request, quiz_id, question_num):
             user_score_of_the_quiz.add_score(1)
             user_score_of_the_quiz.save()
         if question_object.question_number == count_of_questions_in_the_quiz:
-            return redirect(f'/quiz_result/{quiz_id}')
+            uri = reverse('quiz_result', args=(quiz_id,))
+            return redirect(uri)
         else:
-            return redirect(f'/quiz_taking/{quiz_id}/question/{question_num + 1}')
+            uri = reverse('student_answer', args=(quiz_id, (question_num + 1)))
+            return redirect(uri)
+            # return redirect(f'/quiz_taking/{quiz_id}/question/{question_num + 1}')
 
-    form_action = f'quiz_taking/{quiz_id}/question/{question_num}'
+    form_action = reverse('student_answer', args=(quiz_id, question_num))
     context = {
         'quiz': quiz_object,
         'question': question_object,
