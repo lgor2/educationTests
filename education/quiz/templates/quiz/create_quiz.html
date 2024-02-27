@@ -3,7 +3,7 @@
 {% load crispy_forms_tags %}
 {% block content %}
 <h1>Create a quiz!</h1>
-<form action="/create_quiz" method="POST">
+<form action="{% url 'create_quiz' %}" method="POST">
     {% csrf_token %}
     {{ form|crispy }}
     <br><br>

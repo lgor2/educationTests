@@ -8,6 +8,6 @@
         Your Result - {{score_result}}/{{total_questions}}
     </h1>
     <div class="my-3"></div>
-    <a href="/completed_quizzes" class="d-block lead text-center text-success">List of my quizzes</a>
+    <a href="{% url 'completed_quizzes' %}" class="d-block lead text-center text-success">List of my quizzes</a>
 </div>
 {% endblock %}

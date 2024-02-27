@@ -4,7 +4,7 @@
 {% block content %}
 <div class="container mt-5">
     <h1 class="mb-4">Quiz - {{ quiz.title }}</h1>
-    <form action="/{{form_action}}" method="POST">
+    <form action="{{form_action}}" method="POST">
         {% csrf_token %}
         <div class="mb-3">
             <p><span>{{ question.question_number }}.</span> {{ question.text }}</p>

@@ -358,7 +358,6 @@ def student_answer(request, quiz_id, question_num):
         else:
             uri = reverse('student_answer', args=(quiz_id, (question_num + 1)))
             return redirect(uri)
-            # return redirect(f'/quiz_taking/{quiz_id}/question/{question_num + 1}')
 
     form_action = reverse('student_answer', args=(quiz_id, question_num))
     context = {
