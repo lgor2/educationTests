@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-ho=$x$j7$u)vbb8yxn#ny#p!hv=h@+-qb=+a_1&$bz86mts&1r
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1']
+INTERNAL_IPS = ["127.0.0.1"]
 
 
 # Application definition
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'quiz.apps.QuizConfig',
     'crispy_forms',
     'crispy_bootstrap5',
+    "debug_toolbar",
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -54,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'education.urls'

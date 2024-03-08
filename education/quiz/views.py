@@ -13,6 +13,7 @@ from django.db.models import Max, Exists, Q
 from django.shortcuts import get_object_or_404
 import django.views.defaults
 
+
 def get_group_for_registration(req):
     def create_group_with_permissions(group, permissions_list):
         for permission_code in permissions_list:
@@ -56,12 +57,14 @@ def get_group_for_registration(req):
 
 
 def get_group(req):
-    is_student = req.user.groups.filter(name='student_group').exists()
-    is_teacher = req.user.groups.filter(name='teacher_group').exists()
+    user_groups = req.user.groups.values_list('name', flat=True)
+
+    # is_student = req.user.groups.filter(name='student_group').exists()
+    # is_teacher = req.user.groups.filter(name='teacher_group').exists()
 
     context = {
-        'is_student': is_student,
-        'is_teacher': is_teacher,
+        'is_student': 'student_group' in user_groups,
+        'is_teacher': 'teacher_group' in user_groups,
     }
 
     return context
@@ -150,11 +153,15 @@ def quiz_filling(request, quiz_id):
 
 @login_required(login_url='login/')
 def add_question(request, quiz_id, number_of_question):
+    quiz = Quiz.objects.get(id=quiz_id)
     if request.method == 'POST':
         post_data = request.POST
         question_type = post_data.get('question_type')
 
         form = MyDynamicForm(request.POST, dynamic_fields=request.POST.items())
+
+        # List contain answer options for current question
+        answers_to_create = []
 
         if question_type == 'open':
             if post_data.get('open_question', False):
@@ -165,7 +172,7 @@ def add_question(request, quiz_id, number_of_question):
             question = Question(
                 question_number=number_of_question,
                 text=question_text,
-                related_quiz=Quiz.objects.get(id=quiz_id),
+                related_quiz=quiz,
                 question_type=TypeOfQuestion.objects.get(question_type_name='open'),
             )
             question.save()
@@ -185,7 +192,7 @@ def add_question(request, quiz_id, number_of_question):
             question = Question(
                 question_number=number_of_question,
                 text=question_text,
-                related_quiz=Quiz.objects.get(id=quiz_id),
+                related_quiz=quiz,
                 question_type=TypeOfQuestion.objects.get(question_type_name='close_one'),
             )
             question.save()
@@ -209,7 +216,8 @@ def add_question(request, quiz_id, number_of_question):
                         text_of_answer=post_data[i],
                         related_question=question,
                     )
-                    answer.save()
+                    answers_to_create.append(answer)
+            Answer.objects.bulk_create(answers_to_create)
 
         elif question_type == 'close_many':
             if post_data.get('close_many_question', False):
@@ -218,7 +226,7 @@ def add_question(request, quiz_id, number_of_question):
             question = Question(
                 question_number=number_of_question,
                 text=question_text,
-                related_quiz=Quiz.objects.get(id=quiz_id),
+                related_quiz=quiz,
                 question_type=TypeOfQuestion.objects.get(question_type_name='close_many'),
             )
             question.save()
@@ -240,12 +248,13 @@ def add_question(request, quiz_id, number_of_question):
                         text_of_answer=post_data[i],
                         related_question=question,
                     )
-                    answer.save()
+                    answers_to_create.append(answer)
+            Answer.objects.bulk_create(answers_to_create)
 
         else:
             pass
 
-        quiz = Quiz.objects.get(id=quiz_id)
+        # quiz = Quiz.objects.get(id=quiz_id)
         questions = Question.objects.filter(related_quiz=quiz)
         context = {
             'quiz': quiz,
@@ -257,7 +266,7 @@ def add_question(request, quiz_id, number_of_question):
         context.update(get_group(request))
         return render(request, 'quiz/quiz_filling.html', context=context)
 
-    quiz = Quiz.objects.get(id=quiz_id)
+    # quiz = Quiz.objects.get(id=quiz_id)
     context = {}
     context.update(get_group(request))
     return render(request, 'quiz/assessments.html', context=context)
@@ -273,8 +282,12 @@ def my_quizzes(request):
 
 
 def quiz(request, quiz_id):
-    quiz_object = get_object_or_404(Quiz, id=quiz_id)
-    if request.user.groups.filter(name='student_group').exists():
+    quiz_object = get_object_or_404(
+        Quiz.objects.select_related('author'),
+        id=quiz_id
+    )
+    user_group = get_group(request)
+    if user_group['is_student']:
         student_already_taken_the_test = Score.objects.filter(
             related_quiz=quiz_object,
             related_student=request.user
@@ -286,15 +299,15 @@ def quiz(request, quiz_id):
         context = {
             'quiz_object': quiz_object,
         }
-        context.update(get_group(request))
+        context.update(user_group)
         return render(request, 'quiz/quiz_object_for_student.html', context=context)
-    elif request.user.groups.filter(name='teacher_group').exists():
+    elif user_group['is_teacher']:
         questions = Question.objects.filter(related_quiz=quiz_object)
         context = {
             'quiz_object': quiz_object,
             'questions': questions,
         }
-        context.update(get_group(request))
+        context.update(user_group)
         return render(request, 'quiz/quiz_object.html', context=context)
 
 
@@ -321,7 +334,7 @@ def filtered_quizzes(request):
             Q(description__icontains=search_query) |
             Q(author__username__icontains=search_query))
     else:
-        quizzes = Quiz.objects.all()
+        quizzes = Quiz.objects.all().select_related('author')
 
     context = {
         'quizzes': quizzes,
@@ -389,23 +402,26 @@ def quiz_result(request, quiz_id):
 
 
 def completed_quizzes(request):
-    if request.user.groups.filter(name='student_group').exists():
+    user_group = get_group(request)
+    if user_group['is_student']:
         results = (Score.objects.filter(related_student=request.user)
-                   .select_related('related_quiz'))
+                   .select_related('related_quiz')
+                   .select_related('related_quiz__author'))
         context = {
             'results': results,
         }
-        context.update(get_group(request))
+        context.update(user_group)
         return render(request, 'quiz/completed_quizzes.html', context=context)
 
-    elif request.user.groups.filter(name='teacher_group').exists():
+    elif user_group['is_teacher']:
         results = (Score.objects.
                    select_related('related_quiz').
+                   select_related('related_student').
                    filter(related_quiz__author=request.user))
         context = {
             'results': results,
         }
-        context.update(get_group(request))
+        context.update(user_group)
         return render(request, 'quiz/list_of_completed_quizzes_for_teacher.html', context=context)
 
 

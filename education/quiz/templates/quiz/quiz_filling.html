@@ -4,7 +4,7 @@
 
 {% block content %}
 <h1>Name: {{ quiz.title }}</h1>
-<p>Description: {{ quiz.description }}</p>
+<p>Description: {{ quiz.description | linebreaks }}</p>
 <div>
     <h1>Here will be a list of questions</h1>
     {% for q in questions %}
